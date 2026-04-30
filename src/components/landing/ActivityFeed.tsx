@@ -102,10 +102,12 @@ export function ActivityFeed() {
                     <ArrowLeftRight className="h-4 w-4 text-[color:var(--teal)]" />
                   </span>
                   <div className="min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {s.requester_skill ?? "—"} <span className="text-muted-foreground">↔</span> {s.receiver_skill ?? "—"}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <SkillChip name={s.requester_skill} />
+                      <span className="text-muted-foreground text-xs shrink-0">↔</span>
+                      <SkillChip name={s.receiver_skill} />
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">
+                    <div className="text-xs text-muted-foreground truncate mt-1">
                       {s.requester_name} ↔ {s.receiver_name} · <span className="capitalize">{statusLabel(s.status)}</span>
                     </div>
                   </div>
@@ -117,5 +119,22 @@ export function ActivityFeed() {
         </aside>
       </div>
     </section>
+  );
+}
+
+function SkillChip({ name }: { name: string | null }) {
+  const isMissing = !name;
+  return (
+    <span
+      className={
+        "inline-flex items-center max-w-[8rem] truncate rounded-md px-2 py-0.5 text-[11px] font-medium border backdrop-blur-md " +
+        (isMissing
+          ? "bg-white/[0.03] border-[color:var(--glass-border)] text-muted-foreground italic"
+          : "bg-white/[0.06] border-[color:var(--glass-border)] text-foreground/90")
+      }
+      title={name ?? "Skill not set"}
+    >
+      {name ?? "Any skill"}
+    </span>
   );
 }
