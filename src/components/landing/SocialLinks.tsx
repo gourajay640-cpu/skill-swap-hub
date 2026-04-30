@@ -1,9 +1,9 @@
 import { Github, Linkedin, Instagram } from "lucide-react";
 
 export const socials = [
-  { label: "GitHub",    href: "#", Icon: Github },
+  { label: "GitHub",    href: "https://github.com/gourajay640-cpu", Icon: Github },
   { label: "LinkedIn",  href: "#", Icon: Linkedin },
-  { label: "Instagram", href: "#", Icon: Instagram },
+  { label: "Instagram", href: "https://www.instagram.com/ajay_gour_01?igsh=cDN0d2dtOHZkb3l2", Icon: Instagram },
 ];
 
 export function SocialLinks({ size = "sm" }: { size?: "sm" | "md" }) {
