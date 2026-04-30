@@ -198,7 +198,7 @@ export type Database = {
     }
     Functions: {
       get_recent_swaps_feed: {
-        Args: never
+        Args: { p_before?: string; p_limit?: number; p_skill?: string }
         Returns: {
           created_at: string
           id: string
