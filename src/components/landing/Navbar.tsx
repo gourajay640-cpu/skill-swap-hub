@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { initialsOf } from "@/lib/matching";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SocialLinks } from "./SocialLinks";
 
 const links = [
   { label: "Discover", to: "/" as const },
@@ -46,6 +47,9 @@ export function Navbar() {
           ))}
         </ul>
         <div className="flex items-center gap-3">
+          <div className="hidden sm:block">
+            <SocialLinks />
+          </div>
           {user ? (
             <>
               <Link to="/profile" className="h-9 w-9 rounded-full p-[2px] bg-gradient-cta">
