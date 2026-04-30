@@ -60,13 +60,13 @@ export function ActivityFeed() {
   const [hasMore, setHasMore] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [skillFilter, setSkillFilter] = useState<string | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLLIElement | null>(null);
 
   const loadFirstPage = useCallback(async () => {
     const { data } = await supabase.rpc("get_recent_swaps_feed", {
       p_limit: PAGE_SIZE,
-      p_before: null,
-      p_skill: skillFilter,
+      p_before: undefined,
+      p_skill: skillFilter ?? undefined,
     });
     const rows = (data as FeedItem[] | null) ?? [];
     setItems(rows);
@@ -81,7 +81,7 @@ export function ActivityFeed() {
     const { data } = await supabase.rpc("get_recent_swaps_feed", {
       p_limit: PAGE_SIZE,
       p_before: last.created_at,
-      p_skill: skillFilter,
+      p_skill: skillFilter ?? undefined,
     });
     const rows = (data as FeedItem[] | null) ?? [];
     setItems((prev) => {
