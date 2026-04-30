@@ -46,6 +46,7 @@ export type Database = {
       }
       skills: {
         Row: {
+          category: string | null
           color: string | null
           created_at: string
           id: string
@@ -53,6 +54,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          category?: string | null
           color?: string | null
           created_at?: string
           id?: string
@@ -60,6 +62,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          category?: string | null
           color?: string | null
           created_at?: string
           id?: string
@@ -154,7 +157,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      potential_matches: {
+        Row: {
+          a_teaches_skill_id: string | null
+          b_teaches_skill_id: string | null
+          user_a_id: string | null
+          user_b_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skills_skill_id_fkey"
+            columns: ["a_teaches_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skills_skill_id_fkey"
+            columns: ["b_teaches_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_a_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skills_user_id_fkey"
+            columns: ["user_b_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
