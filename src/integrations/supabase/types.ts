@@ -195,6 +195,16 @@ export type Database = {
           },
         ]
       }
+      recent_swaps_feed: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          receiver_name: string | null
+          requester_name: string | null
+          status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
