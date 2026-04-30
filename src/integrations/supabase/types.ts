@@ -197,7 +197,16 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_recent_swaps_feed: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          receiver_name: string
+          requester_name: string
+          status: string
+        }[]
+      }
     }
     Enums: {
       skill_kind: "knows" | "wants"

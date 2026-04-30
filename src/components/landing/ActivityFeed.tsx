@@ -1,15 +1,64 @@
 import { ArrowLeftRight, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const activity = [
-  { a: "JS",         b: "Python",      who: "Sara ↔ Tom",      time: "2m ago" },
-  { a: "React",      b: "Vue",         who: "Ana ↔ Marc",      time: "8m ago" },
-  { a: "Go",         b: "Rust",        who: "Kenji ↔ Ines",    time: "21m ago" },
-  { a: "Kubernetes", b: "Terraform",   who: "Olu ↔ Zara",      time: "1h ago" },
-  { a: "GraphQL",    b: "tRPC",        who: "Mira ↔ Felix",    time: "3h ago" },
-  { a: "Swift",      b: "Kotlin",      who: "Noor ↔ Pablo",    time: "5h ago" },
+type FeedItem = {
+  id: string;
+  status: string;
+  created_at: string;
+  requester_name: string;
+  receiver_name: string;
+};
+
+const fallback: FeedItem[] = [
+  { id: "f1", status: "accepted", created_at: new Date(Date.now() - 2 * 60_000).toISOString(),  requester_name: "Sara",  receiver_name: "Tom" },
+  { id: "f2", status: "accepted", created_at: new Date(Date.now() - 8 * 60_000).toISOString(),  requester_name: "Ana",   receiver_name: "Marc" },
+  { id: "f3", status: "pending",  created_at: new Date(Date.now() - 21 * 60_000).toISOString(), requester_name: "Kenji", receiver_name: "Ines" },
 ];
 
+function timeAgo(iso: string): string {
+  const s = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+function statusLabel(status: string) {
+  if (status === "accepted") return "matched";
+  if (status === "pending") return "requested";
+  if (status === "rejected") return "declined";
+  return status;
+}
+
 export function ActivityFeed() {
+  const [items, setItems] = useState<FeedItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase.rpc("get_recent_swaps_feed");
+      if (!cancelled) {
+        setItems((data as FeedItem[] | null) ?? []);
+        setLoaded(true);
+      }
+    };
+    load();
+    const channel = supabase
+      .channel("swap_requests_feed")
+      .on("postgres_changes", { event: "*", schema: "public", table: "swap_requests" }, () => load())
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const display = loaded && items.length > 0 ? items : fallback;
+
   return (
     <section className="px-4 sm:px-6 pb-24">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.4fr_1fr] gap-6">
@@ -44,20 +93,20 @@ export function ActivityFeed() {
             <span className="text-xs text-muted-foreground">Live</span>
           </div>
           <ul className="space-y-2">
-            {activity.map((s, i) => (
-              <li key={i} className="glass-hover flex items-center justify-between rounded-xl px-3 py-2.5 border border-transparent hover:border-[color:var(--glass-border)]">
+            {display.map((s) => (
+              <li key={s.id} className="glass-hover flex items-center justify-between rounded-xl px-3 py-2.5 border border-transparent hover:border-[color:var(--glass-border)]">
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="grid place-items-center h-8 w-8 rounded-lg bg-white/5">
                     <ArrowLeftRight className="h-4 w-4 text-[color:var(--teal)]" />
                   </span>
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">
-                      {s.a} <span className="text-muted-foreground">↔</span> {s.b}
+                      {s.requester_name} <span className="text-muted-foreground">↔</span> {s.receiver_name}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">{s.who}</div>
+                    <div className="text-xs text-muted-foreground truncate capitalize">{statusLabel(s.status)}</div>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground shrink-0 ml-3">{s.time}</span>
+                <span className="text-xs text-muted-foreground shrink-0 ml-3">{timeAgo(s.created_at)}</span>
               </li>
             ))}
           </ul>
