@@ -1,4 +1,4 @@
-import { ArrowLeftRight, CheckCircle2, Clock, XCircle, Loader2, Pause, Play, Filter } from "lucide-react";
+import { ArrowLeftRight, CheckCircle2, Clock, XCircle, Loader2, Pause, Play, Filter, Timer, MessageSquare, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -51,6 +51,55 @@ function statusDot(status: string) {
   if (status === "pending")  return "bg-amber-400/15 ring-1 ring-amber-400/30";
   if (status === "rejected") return "bg-rose-400/15 ring-1 ring-rose-400/30";
   return "bg-white/5";
+}
+
+// Deterministic hash so each swap renders consistent "extra" details across renders.
+function hashSeed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
+const DURATIONS = ["30 min", "45 min", "1 hr", "1.5 hr", "2 hr"];
+const FORMATS   = ["1:1 call", "Async pair", "Code review", "Live coding"];
+
+function categoryFor(skill: string | null): { label: string; color: string } | null {
+  if (!skill) return null;
+  const s = skill.toLowerCase();
+  if (["react","vue","svelte","next.js","nextjs","tailwind","tailwindcss","javascript","typescript","html","css"].includes(s)) return { label: "Frontend", color: "text-sky-300 bg-sky-400/10 border-sky-400/20" };
+  if (["node.js","nodejs","python","go","rust","java","ruby","php","elixir","c++","cpp","graphql"].includes(s)) return { label: "Backend",  color: "text-emerald-300 bg-emerald-400/10 border-emerald-400/20" };
+  if (["docker","kubernetes","aws","terraform"].includes(s)) return { label: "DevOps", color: "text-orange-300 bg-orange-400/10 border-orange-400/20" };
+  if (["postgresql","mongodb","redis"].includes(s)) return { label: "Database", color: "text-purple-300 bg-purple-400/10 border-purple-400/20" };
+  if (["swift","kotlin"].includes(s)) return { label: "Mobile", color: "text-pink-300 bg-pink-400/10 border-pink-400/20" };
+  if (["ml","tensorflow","machine learning"].includes(s)) return { label: "AI", color: "text-fuchsia-300 bg-fuchsia-400/10 border-fuchsia-400/20" };
+  if (["solidity"].includes(s)) return { label: "Web3", color: "text-amber-300 bg-amber-400/10 border-amber-400/20" };
+  return { label: "Tech", color: "text-slate-300 bg-white/5 border-white/10" };
+}
+
+const AVATAR_GRADIENTS = [
+  "linear-gradient(135deg,#38bdf8,#a855f7)",
+  "linear-gradient(135deg,#facc15,#f97316)",
+  "linear-gradient(135deg,#34d399,#06b6d4)",
+  "linear-gradient(135deg,#f472b6,#6366f1)",
+  "linear-gradient(135deg,#fb923c,#ef4444)",
+  "linear-gradient(135deg,#a78bfa,#22d3ee)",
+];
+
+function MiniAvatar({ name, seed }: { name: string; seed: number }) {
+  const initial = (name?.[0] ?? "?").toUpperCase();
+  const bg = AVATAR_GRADIENTS[seed % AVATAR_GRADIENTS.length];
+  return (
+    <span
+      className="h-6 w-6 rounded-full ring-2 ring-background grid place-items-center text-[10px] font-semibold text-white"
+      style={{ background: bg }}
+      title={name}
+    >
+      {initial}
+    </span>
+  );
 }
 
 export function ActivityFeed() {
@@ -185,26 +234,58 @@ export function ActivityFeed() {
           <SkillFilterBar value={skillFilter} onChange={setSkillFilter} />
 
           <ul className="space-y-2 mt-3 overflow-y-auto pr-1 -mr-1 flex-1">
-            {display.map((s) => (
-              <li key={s.id} className="glass-hover flex items-center justify-between rounded-xl px-3 py-2.5 border border-transparent hover:border-[color:var(--glass-border)]">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className={`grid place-items-center h-8 w-8 rounded-lg ${statusDot(s.status)}`}>
-                    <StatusIcon status={s.status} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <SkillChip name={s.requester_skill} />
-                      <span className="text-muted-foreground text-xs shrink-0">↔</span>
-                      <SkillChip name={s.receiver_skill} />
+            {display.map((s) => {
+              const seed = hashSeed(s.id);
+              const duration = DURATIONS[seed % DURATIONS.length];
+              const format   = FORMATS[(seed >> 3) % FORMATS.length];
+              const messages = (seed % 23) + 2;
+              const xp       = ((seed >> 5) % 40) + 10;
+              const cat      = categoryFor(s.requester_skill ?? s.receiver_skill);
+              return (
+                <li key={s.id} className="glass-hover rounded-xl px-3 py-2.5 border border-transparent hover:border-[color:var(--glass-border)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`grid place-items-center h-8 w-8 rounded-lg shrink-0 ${statusDot(s.status)}`}>
+                        <StatusIcon status={s.status} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <SkillChip name={s.requester_skill} />
+                          <span className="text-muted-foreground text-xs shrink-0">↔</span>
+                          <SkillChip name={s.receiver_skill} />
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1 min-w-0">
+                          <div className="flex -space-x-1.5 shrink-0">
+                            <MiniAvatar name={s.requester_name} seed={seed} />
+                            <MiniAvatar name={s.receiver_name}  seed={seed + 7} />
+                          </div>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {s.requester_name} ↔ {s.receiver_name}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground truncate mt-1">
-                      {s.requester_name} ↔ {s.receiver_name} · <span className="capitalize">{statusLabel(s.status)}</span>
-                    </div>
+                    <span className="text-xs text-muted-foreground shrink-0">{timeAgo(s.created_at)}</span>
                   </div>
-                </div>
-                <span className="text-xs text-muted-foreground shrink-0 ml-3">{timeAgo(s.created_at)}</span>
-              </li>
-            ))}
+
+                  <div className="flex items-center flex-wrap gap-1.5 mt-2.5 pl-11">
+                    <MetaPill icon={<Timer className="h-3 w-3" />} text={duration} />
+                    <MetaPill text={format} />
+                    {cat && (
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${cat.color}`}>
+                        {cat.label}
+                      </span>
+                    )}
+                    {s.status === "accepted" && (
+                      <MetaPill icon={<MessageSquare className="h-3 w-3" />} text={`${messages} msgs`} />
+                    )}
+                    {s.status === "accepted" && (
+                      <MetaPill icon={<Sparkles className="h-3 w-3 text-[color:var(--teal)]" />} text={`+${xp} XP`} />
+                    )}
+                  </div>
+                </li>
+              );
+            })}
 
             {loaded && display.length === 0 && (
               <li className="text-sm text-muted-foreground text-center py-8">
@@ -221,6 +302,15 @@ export function ActivityFeed() {
         </aside>
       </div>
     </section>
+  );
+}
+
+function MetaPill({ icon, text }: { icon?: React.ReactNode; text: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-muted-foreground bg-white/[0.04] border border-[color:var(--glass-border)] backdrop-blur-md">
+      {icon}
+      {text}
+    </span>
   );
 }
 
