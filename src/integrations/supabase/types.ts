@@ -203,7 +203,9 @@ export type Database = {
           created_at: string
           id: string
           receiver_name: string
+          receiver_skill: string
           requester_name: string
+          requester_skill: string
           status: string
         }[]
       }
