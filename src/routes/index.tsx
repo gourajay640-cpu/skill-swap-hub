@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Background } from "@/components/landing/Background";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { ExchangeGrid } from "@/components/landing/ExchangeGrid";
 import { ActivityFeed } from "@/components/landing/ActivityFeed";
 
 export const Route = createFileRoute("/")({
@@ -24,7 +23,6 @@ function Index() {
       <Navbar />
       <main>
         <Hero />
-        <ExchangeGrid />
         <ActivityFeed />
       </main>
       <footer className="px-6 py-10 text-center text-xs text-muted-foreground">
