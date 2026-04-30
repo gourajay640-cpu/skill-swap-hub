@@ -3,6 +3,7 @@ import { Background } from "@/components/landing/Background";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { ActivityFeed } from "@/components/landing/ActivityFeed";
+import { SocialLinks } from "@/components/landing/SocialLinks";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -25,8 +26,13 @@ function Index() {
         <Hero />
         <ActivityFeed />
       </main>
-      <footer className="px-6 py-10 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Skill Swap — built by engineers, for engineers.
+      <footer className="px-4 sm:px-6 pb-10">
+        <div className="glass max-w-6xl mx-auto rounded-2xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground text-center sm:text-left">
+            © {new Date().getFullYear()} Skill Swap — built by engineers, for engineers.
+          </p>
+          <SocialLinks size="md" />
+        </div>
       </footer>
     </div>
   );
