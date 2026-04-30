@@ -1,26 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Background } from "@/components/landing/Background";
+import { Navbar } from "@/components/landing/Navbar";
+import { Hero } from "@/components/landing/Hero";
+import { ExchangeGrid } from "@/components/landing/ExchangeGrid";
+import { ActivityFeed } from "@/components/landing/ActivityFeed";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Skill Swap — Trade Your Tech Stack" },
+      { name: "description", content: "Skill Swap is the peer-to-peer exchange for software engineers. Trade what you know for what you want to learn." },
+      { property: "og:title", content: "Skill Swap — Trade Your Tech Stack" },
+      { property: "og:description", content: "The peer-to-peer exchange for software engineers." },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="relative min-h-screen overflow-x-hidden">
+      <Background />
+      <Navbar />
+      <main>
+        <Hero />
+        <ExchangeGrid />
+        <ActivityFeed />
+      </main>
+      <footer className="px-6 py-10 text-center text-xs text-muted-foreground">
+        © {new Date().getFullYear()} Skill Swap — built by engineers, for engineers.
+      </footer>
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
