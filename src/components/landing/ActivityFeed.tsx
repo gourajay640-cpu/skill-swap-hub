@@ -8,12 +8,14 @@ type FeedItem = {
   created_at: string;
   requester_name: string;
   receiver_name: string;
+  requester_skill: string | null;
+  receiver_skill: string | null;
 };
 
 const fallback: FeedItem[] = [
-  { id: "f1", status: "accepted", created_at: new Date(Date.now() - 2 * 60_000).toISOString(),  requester_name: "Sara",  receiver_name: "Tom" },
-  { id: "f2", status: "accepted", created_at: new Date(Date.now() - 8 * 60_000).toISOString(),  requester_name: "Ana",   receiver_name: "Marc" },
-  { id: "f3", status: "pending",  created_at: new Date(Date.now() - 21 * 60_000).toISOString(), requester_name: "Kenji", receiver_name: "Ines" },
+  { id: "f1", status: "accepted", created_at: new Date(Date.now() - 2 * 60_000).toISOString(),  requester_name: "Sara",  receiver_name: "Tom",   requester_skill: "JavaScript", receiver_skill: "Python" },
+  { id: "f2", status: "accepted", created_at: new Date(Date.now() - 8 * 60_000).toISOString(),  requester_name: "Ana",   receiver_name: "Marc", requester_skill: "React",      receiver_skill: "Vue" },
+  { id: "f3", status: "pending",  created_at: new Date(Date.now() - 21 * 60_000).toISOString(), requester_name: "Kenji", receiver_name: "Ines", requester_skill: "Go",         receiver_skill: "Rust" },
 ];
 
 function timeAgo(iso: string): string {
@@ -101,9 +103,11 @@ export function ActivityFeed() {
                   </span>
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">
-                      {s.requester_name} <span className="text-muted-foreground">↔</span> {s.receiver_name}
+                      {s.requester_skill ?? "—"} <span className="text-muted-foreground">↔</span> {s.receiver_skill ?? "—"}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate capitalize">{statusLabel(s.status)}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {s.requester_name} ↔ {s.receiver_name} · <span className="capitalize">{statusLabel(s.status)}</span>
+                    </div>
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground shrink-0 ml-3">{timeAgo(s.created_at)}</span>
