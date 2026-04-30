@@ -16,9 +16,21 @@ type FeedItem = {
 };
 
 const fallback: FeedItem[] = [
-  { id: "f1", status: "accepted", created_at: new Date(Date.now() - 2 * 60_000).toISOString(),  requester_name: "Sara",  receiver_name: "Tom",   requester_skill: "JavaScript", receiver_skill: "Python" },
-  { id: "f2", status: "accepted", created_at: new Date(Date.now() - 8 * 60_000).toISOString(),  requester_name: "Ana",   receiver_name: "Marc", requester_skill: "React",      receiver_skill: "Vue" },
-  { id: "f3", status: "pending",  created_at: new Date(Date.now() - 21 * 60_000).toISOString(), requester_name: "Kenji", receiver_name: "Ines", requester_skill: "Go",         receiver_skill: "Rust" },
+  { id: "f1",  status: "accepted", created_at: new Date(Date.now() - 2  * 60_000).toISOString(),       requester_name: "Sara",   receiver_name: "Tom",     requester_skill: "React",      receiver_skill: "Vue" },
+  { id: "f2",  status: "accepted", created_at: new Date(Date.now() - 8  * 60_000).toISOString(),       requester_name: "Ana",    receiver_name: "Marc",    requester_skill: "Node.js",    receiver_skill: "Python" },
+  { id: "f3",  status: "pending",  created_at: new Date(Date.now() - 14 * 60_000).toISOString(),       requester_name: "Kenji",  receiver_name: "Ines",    requester_skill: "Go",         receiver_skill: "Rust" },
+  { id: "f4",  status: "accepted", created_at: new Date(Date.now() - 22 * 60_000).toISOString(),       requester_name: "Liam",   receiver_name: "Mei",     requester_skill: "TypeScript", receiver_skill: "React" },
+  { id: "f5",  status: "accepted", created_at: new Date(Date.now() - 38 * 60_000).toISOString(),       requester_name: "Olu",    receiver_name: "Zara",    requester_skill: "Docker",     receiver_skill: "Kubernetes" },
+  { id: "f6",  status: "pending",  created_at: new Date(Date.now() - 55 * 60_000).toISOString(),       requester_name: "Mira",   receiver_name: "Felix",   requester_skill: "Vue",        receiver_skill: "Svelte" },
+  { id: "f7",  status: "accepted", created_at: new Date(Date.now() - 1  * 3_600_000).toISOString(),    requester_name: "Noor",   receiver_name: "Pablo",   requester_skill: "Swift",      receiver_skill: "Kotlin" },
+  { id: "f8",  status: "accepted", created_at: new Date(Date.now() - 2  * 3_600_000).toISOString(),    requester_name: "Aria",   receiver_name: "Dev",     requester_skill: "Node.js",    receiver_skill: "Go" },
+  { id: "f9",  status: "rejected", created_at: new Date(Date.now() - 3  * 3_600_000).toISOString(),    requester_name: "Hugo",   receiver_name: "Yui",     requester_skill: "PHP",        receiver_skill: "Ruby" },
+  { id: "f10", status: "accepted", created_at: new Date(Date.now() - 4  * 3_600_000).toISOString(),    requester_name: "Sami",   receiver_name: "Eli",     requester_skill: "AWS",        receiver_skill: "Terraform" },
+  { id: "f11", status: "pending",  created_at: new Date(Date.now() - 6  * 3_600_000).toISOString(),    requester_name: "Tara",   receiver_name: "Jin",     requester_skill: "GraphQL",    receiver_skill: "PostgreSQL" },
+  { id: "f12", status: "accepted", created_at: new Date(Date.now() - 9  * 3_600_000).toISOString(),    requester_name: "Lena",   receiver_name: "Omar",    requester_skill: "Python",     receiver_skill: "TensorFlow" },
+  { id: "f13", status: "accepted", created_at: new Date(Date.now() - 14 * 3_600_000).toISOString(),    requester_name: "Ravi",   receiver_name: "Sofia",   requester_skill: "Next.js",    receiver_skill: "Tailwind CSS" },
+  { id: "f14", status: "accepted", created_at: new Date(Date.now() - 22 * 3_600_000).toISOString(),    requester_name: "Bea",    receiver_name: "Niko",    requester_skill: "MongoDB",    receiver_skill: "Redis" },
+  { id: "f15", status: "pending",  created_at: new Date(Date.now() - 1  * 86_400_000).toISOString(),   requester_name: "Cleo",   receiver_name: "Rafa",    requester_skill: "Solidity",   receiver_skill: "Rust" },
 ];
 
 function timeAgo(iso: string): string {
