@@ -18,8 +18,15 @@ export function Navbar() {
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) { setName(null); return; }
-    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
+    if (!user) {
+      setName(null);
+      return;
+    }
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .maybeSingle()
       .then(({ data }) => setName(data?.full_name ?? user.email ?? null));
   }, [user]);
 
@@ -38,7 +45,9 @@ export function Navbar() {
               <Link
                 to={l.to}
                 className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg transition-colors hover:bg-white/5"
-                activeProps={{ className: "px-4 py-2 text-sm rounded-lg text-foreground bg-white/5" }}
+                activeProps={{
+                  className: "px-4 py-2 text-sm rounded-lg text-foreground bg-white/5",
+                }}
                 activeOptions={{ exact: l.to === "/" }}
               >
                 {l.label}
@@ -58,7 +67,10 @@ export function Navbar() {
                 </div>
               </Link>
               <button
-                onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+                onClick={async () => {
+                  await signOut();
+                  navigate({ to: "/" });
+                }}
                 className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 title="Sign out"
               >
@@ -66,7 +78,10 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <Link to="/login" className="text-sm rounded-full px-4 py-2 bg-gradient-cta text-primary-foreground font-semibold shadow-glow-cta">
+            <Link
+              to="/login"
+              className="text-sm rounded-full px-4 py-2 bg-gradient-cta text-primary-foreground font-semibold shadow-glow-cta"
+            >
               Sign in
             </Link>
           )}

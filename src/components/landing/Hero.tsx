@@ -1,18 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Sparkles, ArrowLeftRight, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SkillPicker, useSkills } from "@/components/skills/SkillPicker";
 import { TechBadge } from "./TechBadge";
 import { findMatches, type Match } from "@/lib/matching";
 import { MatchResults } from "./MatchResults";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 export function Hero() {
   const { skills } = useSkills();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [knows, setKnows] = useState<string[]>([]);
   const [wants, setWants] = useState<string[]>([]);
   const [searching, setSearching] = useState(false);
   const [matches, setMatches] = useState<Match[] | null>(null);
+  const [loadedSavedSkills, setLoadedSavedSkills] = useState(false);
+
+  useEffect(() => {
+    if (!user || loadedSavedSkills || knows.length || wants.length) return;
+    let active = true;
+    supabase
+      .from("user_skills")
+      .select("skill_id, kind")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (!active) return;
+        setKnows((data ?? []).filter((r) => r.kind === "knows").map((r) => r.skill_id));
+        setWants((data ?? []).filter((r) => r.kind === "wants").map((r) => r.skill_id));
+        setLoadedSavedSkills(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadedSavedSkills, knows.length, user, wants.length]);
 
   const onFind = async () => {
     if (!knows.length || !wants.length) {
@@ -20,11 +42,17 @@ export function Hero() {
       return;
     }
     setSearching(true);
-    const m = await findMatches({ knowSkillIds: knows, wantSkillIds: wants });
+    const m = await findMatches({
+      knowSkillIds: knows,
+      wantSkillIds: wants,
+      excludeUserId: user?.id,
+    });
     setMatches(m);
     setSearching(false);
     queueMicrotask(() => {
-      document.getElementById("match-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById("match-results")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
 
@@ -66,7 +94,9 @@ export function Hero() {
           >
             {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {searching ? "Searching…" : "Find Matches"}
-            {!searching && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
+            {!searching && (
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            )}
           </button>
           <a href="/login" className="glass glass-hover rounded-full px-6 py-4 text-sm font-medium">
             Sign in to connect
@@ -79,14 +109,29 @@ export function Hero() {
   );
 }
 
-function SkillBox({ label, tags, accent, children }: { label: string; tags: string[]; accent: string; children: React.ReactNode }) {
+function SkillBox({
+  label,
+  tags,
+  accent,
+  children,
+}: {
+  label: string;
+  tags: string[];
+  accent: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="glass glass-hover rounded-2xl p-5 relative overflow-hidden">
-      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-30 blur-3xl pointer-events-none" style={{ background: accent }} />
+      <div
+        className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-30 blur-3xl pointer-events-none"
+        style={{ background: accent }}
+      />
       <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">{label}</div>
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
-          {tags.map((t) => <TechBadge key={t} name={t} />)}
+          {tags.map((t) => (
+            <TechBadge key={t} name={t} />
+          ))}
         </div>
       )}
       {children}

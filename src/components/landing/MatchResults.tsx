@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeftRight, MapPin, Loader2 } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { TechBadge } from "./TechBadge";
 import { useAuth } from "@/lib/auth";
@@ -16,7 +16,15 @@ const avatarGradients = [
   "linear-gradient(135deg,#a78bfa,#22d3ee)",
 ];
 
-export function MatchResults({ matches, knowIds, wantIds }: { matches: Match[]; knowIds: string[]; wantIds: string[] }) {
+export function MatchResults({
+  matches,
+  knowIds,
+  wantIds,
+}: {
+  matches: Match[];
+  knowIds: string[];
+  wantIds: string[];
+}) {
   return (
     <div id="match-results" className="max-w-6xl mx-auto mt-16 text-left">
       <div className="flex items-end justify-between mb-6 px-1">
@@ -26,12 +34,19 @@ export function MatchResults({ matches, knowIds, wantIds }: { matches: Match[]; 
       </div>
       {matches.length === 0 ? (
         <div className="glass rounded-2xl p-10 text-center text-muted-foreground">
-          No two-way matches yet. Try broadening your skills or check back soon — new engineers join every day.
+          No two-way matches yet. Try broadening your skills or check back soon — new engineers join
+          every day.
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {matches.map((m, i) => (
-            <MatchCard key={m.user_id} match={m} avatarBg={avatarGradients[i % avatarGradients.length]} knowIds={knowIds} wantIds={wantIds} />
+            <MatchCard
+              key={m.user_id}
+              match={m}
+              avatarBg={avatarGradients[i % avatarGradients.length]}
+              knowIds={knowIds}
+              wantIds={wantIds}
+            />
           ))}
         </div>
       )}
@@ -39,26 +54,86 @@ export function MatchResults({ matches, knowIds, wantIds }: { matches: Match[]; 
   );
 }
 
-function MatchCard({ match, avatarBg, knowIds, wantIds }: { match: Match; avatarBg: string; knowIds: string[]; wantIds: string[] }) {
+function MatchCard({
+  match,
+  avatarBg,
+  knowIds,
+  wantIds,
+}: {
+  match: Match;
+  avatarBg: string;
+  knowIds: string[];
+  wantIds: string[];
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState(false);
+  const message = useMemo(() => {
+    const offer = match.wants[0]?.name;
+    const learn = match.offers[0]?.name;
+    if (!offer || !learn) return null;
+    return `I can help with ${offer} and would like to learn ${learn}.`;
+  }, [match.offers, match.wants]);
 
-  void knowIds; void wantIds;
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    supabase
+      .from("swap_requests")
+      .select("id,status")
+      .or(
+        `and(requester_id.eq.${user.id},receiver_id.eq.${match.user_id}),and(requester_id.eq.${match.user_id},receiver_id.eq.${user.id})`,
+      )
+      .in("status", ["pending", "accepted"])
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active && data) setSent(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [match.user_id, user]);
+
+  void knowIds;
+  void wantIds;
 
   const onConnect = async () => {
     if (!user) {
-      toast.message("Sign in to connect", { description: "Create an account in seconds with a magic link." });
+      toast.message("Sign in to connect", {
+        description: "Create an account in seconds with a magic link.",
+      });
       navigate({ to: "/login" });
       return;
     }
     if (user.id === match.user_id) return;
     setPending(true);
+
+    const { data: existing } = await supabase
+      .from("swap_requests")
+      .select("id,status")
+      .or(
+        `and(requester_id.eq.${user.id},receiver_id.eq.${match.user_id}),and(requester_id.eq.${match.user_id},receiver_id.eq.${user.id})`,
+      )
+      .in("status", ["pending", "accepted"])
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      setPending(false);
+      setSent(true);
+      toast.info(
+        existing.status === "accepted" ? "You are already connected." : "A request already exists.",
+      );
+      return;
+    }
+
     const { error } = await supabase.from("swap_requests").insert({
       requester_id: user.id,
       receiver_id: match.user_id,
       status: "pending",
+      message,
     });
     setPending(false);
     if (error) {
@@ -77,7 +152,10 @@ function MatchCard({ match, avatarBg, knowIds, wantIds }: { match: Match; avatar
   return (
     <article className="glass glass-hover rounded-2xl p-5 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-11 w-11 rounded-full grid place-items-center text-sm font-semibold text-white" style={{ background: avatarBg }}>
+        <div
+          className="h-11 w-11 rounded-full grid place-items-center text-sm font-semibold text-white"
+          style={{ background: avatarBg }}
+        >
           {initialsOf(match.full_name)}
         </div>
         <div className="min-w-0">
@@ -98,7 +176,11 @@ function MatchCard({ match, avatarBg, knowIds, wantIds }: { match: Match; avatar
         disabled={pending || sent}
         className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-cta text-primary-foreground text-sm font-semibold py-2.5 transition-transform hover:scale-[1.02] active:scale-[0.99] shadow-glow-cta disabled:opacity-70 disabled:hover:scale-100"
       >
-        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowLeftRight className="h-4 w-4" />}
+        {pending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <ArrowLeftRight className="h-4 w-4" />
+        )}
         {sent ? "Request sent" : "Connect"}
       </button>
     </article>
@@ -108,11 +190,14 @@ function MatchCard({ match, avatarBg, knowIds, wantIds }: { match: Match; avatar
 function Row({ label, tags }: { label: string; tags: string[] }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">{label}</div>
-      <div className="flex flex-wrap gap-1.5">{tags.map((t) => <TechBadge key={t} name={t} />)}</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">
+        {label}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((t) => (
+          <TechBadge key={t} name={t} />
+        ))}
+      </div>
     </div>
   );
 }
-
-// keep Link import from being treated as unused if we remove it later
-void Link;

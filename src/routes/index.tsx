@@ -10,7 +10,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Skill Swap — Trade Your Tech Stack" },
-      { name: "description", content: "Skill Swap is the peer-to-peer exchange for software engineers. Trade what you know for what you want to learn." },
+      {
+        name: "description",
+        content:
+          "Skill Swap is the peer-to-peer exchange for software engineers. Trade what you know for what you want to learn.",
+      },
       { property: "og:title", content: "Skill Swap — Trade Your Tech Stack" },
       { property: "og:description", content: "The peer-to-peer exchange for software engineers." },
     ],

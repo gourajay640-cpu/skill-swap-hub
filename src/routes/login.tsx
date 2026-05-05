@@ -43,7 +43,10 @@ function LoginPage() {
       <Background />
       <div className="relative min-h-screen grid place-items-center px-4 py-16">
         <div className="w-full max-w-md glass rounded-3xl p-8">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-6"
+          >
             <ArrowLeft className="h-3.5 w-3.5" /> Back home
           </Link>
           {sent ? (
@@ -53,10 +56,14 @@ function LoginPage() {
               </div>
               <h1 className="text-2xl font-bold">Check your email</h1>
               <p className="text-sm text-muted-foreground mt-2">
-                We sent a magic link to <span className="text-foreground font-medium">{email}</span>. Click it to sign in.
+                We sent a magic link to <span className="text-foreground font-medium">{email}</span>
+                . Click it to sign in.
               </p>
               <button
-                onClick={() => { setSent(false); setEmail(""); }}
+                onClick={() => {
+                  setSent(false);
+                  setEmail("");
+                }}
                 className="mt-6 text-xs text-muted-foreground hover:text-foreground"
               >
                 Use a different email
@@ -65,7 +72,9 @@ function LoginPage() {
           ) : (
             <>
               <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-              <p className="text-sm text-muted-foreground mt-1">Sign in with a magic link — no password required.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Sign in with a magic link — no password required.
+              </p>
               <form onSubmit={onSubmit} className="mt-6 space-y-3">
                 <label className="block">
                   <span className="text-xs text-muted-foreground">Email</span>
