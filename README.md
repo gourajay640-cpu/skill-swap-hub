@@ -26,7 +26,7 @@ npm install
 cp .env.example .env
 ```
 
-3. Add your Supabase project URL and publishable anon key to `.env`. Only set `SUPABASE_SERVICE_ROLE_KEY` for trusted server-side jobs; never expose it in client code.
+3. Add your Supabase project URL and publishable anon key to `.env`. Only set `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_DB_URL` locally for trusted backend setup jobs; never expose them in client code.
 
 4. Apply Supabase migrations from `supabase/migrations` to your Supabase project.
 
@@ -75,3 +75,5 @@ npm run backend:seed
 ```
 
 The seeder is idempotent for the demo users it creates. It does not need to be committed and the service-role key must stay local only.
+
+To apply migrations from a machine without the Supabase dashboard, use the direct database connection string from Supabase Project Settings > Database as `SUPABASE_DB_URL`.
