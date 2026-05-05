@@ -43,6 +43,8 @@ npm run dev
 - `npm run preview` previews the production build.
 - `npm run lint` runs ESLint.
 - `npm run format` formats the project with Prettier.
+- `npm run backend:check` verifies the configured Supabase schema, public queries, views, and feed RPC.
+- `npm run backend:seed` creates demo users, complementary skills, and swap requests. This requires a local `SUPABASE_SERVICE_ROLE_KEY`.
 
 ## Supabase Notes
 
@@ -56,3 +58,20 @@ The app expects these public tables and functions from the migrations:
 - `get_recent_swaps_feed`
 
 The final migration hardens swap request transitions so requesters can only cancel pending requests, receivers can only accept or reject pending requests, and participants cannot be changed after a request is created.
+
+## Backend Setup
+
+1. Apply all SQL files in `supabase/migrations` to your Supabase project.
+2. Confirm the backend is reachable:
+
+```bash
+npm run backend:check
+```
+
+3. Optional, for a working demo dataset: add `SUPABASE_SERVICE_ROLE_KEY` to your local `.env`, then run:
+
+```bash
+npm run backend:seed
+```
+
+The seeder is idempotent for the demo users it creates. It does not need to be committed and the service-role key must stay local only.
