@@ -27,14 +27,19 @@ export async function findMatches({
   wantSkillIds: string[];
   excludeUserId?: string;
 }): Promise<Match[]> {
-  if (!knowSkillIds.length || !wantSkillIds.length) return [];
+  const knows = uniqueUuidList(knowSkillIds);
+  const wants = uniqueUuidList(wantSkillIds);
+
+  if (!knows.length || !wants.length) return [];
 
   // Pull every user_skill row that is relevant in either direction
   const { data, error } = await supabase
     .from("user_skills")
-    .select("user_id, kind, skill:skills(id,name,color), profile:profiles(id,full_name,avatar_url,headline,bio)")
+    .select(
+      "user_id, kind, skill:skills(id,name,color), profile:profiles(id,full_name,avatar_url,headline,bio)",
+    )
     .or(
-      `and(kind.eq.knows,skill_id.in.(${wantSkillIds.join(",")})),and(kind.eq.wants,skill_id.in.(${knowSkillIds.join(",")}))`,
+      `and(kind.eq.knows,skill_id.in.(${wants.join(",")})),and(kind.eq.wants,skill_id.in.(${knows.join(",")}))`,
     );
 
   if (error) {
@@ -46,7 +51,13 @@ export async function findMatches({
     user_id: string;
     kind: "knows" | "wants";
     skill: { id: string; name: string; color: string | null } | null;
-    profile: { id: string; full_name: string | null; avatar_url: string | null; headline: string | null; bio: string | null } | null;
+    profile: {
+      id: string;
+      full_name: string | null;
+      avatar_url: string | null;
+      headline: string | null;
+      bio: string | null;
+    } | null;
   };
 
   const map = new Map<string, Match>();
@@ -67,8 +78,10 @@ export async function findMatches({
       };
       map.set(row.user_id, m);
     }
-    if (row.kind === "knows" && !m.offers.find((s) => s.id === row.skill!.id)) m.offers.push(row.skill);
-    if (row.kind === "wants" && !m.wants.find((s) => s.id === row.skill!.id)) m.wants.push(row.skill);
+    if (row.kind === "knows" && !m.offers.find((s) => s.id === row.skill!.id))
+      m.offers.push(row.skill);
+    if (row.kind === "wants" && !m.wants.find((s) => s.id === row.skill!.id))
+      m.wants.push(row.skill);
   }
 
   // Two-way matches only
@@ -86,4 +99,9 @@ export function initialsOf(name: string | null | undefined) {
     .slice(0, 2)
     .map((n) => n[0]?.toUpperCase())
     .join("");
+}
+
+function uniqueUuidList(ids: string[]) {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return Array.from(new Set(ids.filter((id) => uuid.test(id))));
 }

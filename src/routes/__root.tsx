@@ -31,14 +31,21 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Skill Swap Hub" },
+      {
+        name: "description",
+        content:
+          "Find peer engineers to trade skills, request swaps, and manage active learning exchanges.",
+      },
+      { name: "author", content: "Skill Swap Hub" },
+      { property: "og:title", content: "Skill Swap Hub" },
+      {
+        property: "og:description",
+        content: "Peer-to-peer skill exchange for software engineers.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@skillswaphub" },
     ],
     links: [
       {
@@ -47,7 +54,10 @@ export const Route = createRootRoute({
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,

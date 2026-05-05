@@ -1,10 +1,14 @@
 import { Github, Linkedin, Instagram, Twitter } from "lucide-react";
 
 export const socials = [
-  { label: "GitHub",    href: "https://github.com/gourajay640-cpu", Icon: Github },
-  { label: "LinkedIn",  href: "#", Icon: Linkedin },
-  { label: "Instagram", href: "https://www.instagram.com/ajay_gour_01?igsh=cDN0d2dtOHZkb3l2", Icon: Instagram },
-  { label: "X",         href: "#", Icon: Twitter },
+  { label: "GitHub", href: "https://github.com/gourajay640-cpu", Icon: Github },
+  { label: "LinkedIn", href: "#", Icon: Linkedin },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/ajay_gour_01?igsh=cDN0d2dtOHZkb3l2",
+    Icon: Instagram,
+  },
+  { label: "X", href: "#", Icon: Twitter },
 ];
 
 export function SocialLinks({ size = "sm" }: { size?: "sm" | "md" }) {

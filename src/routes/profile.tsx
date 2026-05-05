@@ -53,11 +53,19 @@ function ProfilePage() {
       headline: headline || null,
       bio: bio || null,
     });
-    if (pErr) { toast.error(pErr.message); setSaving(false); return; }
+    if (pErr) {
+      toast.error(pErr.message);
+      setSaving(false);
+      return;
+    }
 
     // Replace user's skills with the new selection
     const { error: dErr } = await supabase.from("user_skills").delete().eq("user_id", user.id);
-    if (dErr) { toast.error(dErr.message); setSaving(false); return; }
+    if (dErr) {
+      toast.error(dErr.message);
+      setSaving(false);
+      return;
+    }
 
     const rows = [
       ...knows.map((id) => ({ user_id: user.id, skill_id: id, kind: "knows" as const })),
@@ -65,7 +73,11 @@ function ProfilePage() {
     ];
     if (rows.length) {
       const { error: iErr } = await supabase.from("user_skills").insert(rows);
-      if (iErr) { toast.error(iErr.message); setSaving(false); return; }
+      if (iErr) {
+        toast.error(iErr.message);
+        setSaving(false);
+        return;
+      }
     }
 
     setSaving(false);
@@ -73,42 +85,73 @@ function ProfilePage() {
   };
 
   if (authLoading || loading) {
-    return <AppShell><div className="grid place-items-center py-32"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div></AppShell>;
+    return (
+      <AppShell>
+        <div className="grid place-items-center py-32">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </AppShell>
+    );
   }
 
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Your profile</h1>
-        <p className="text-muted-foreground mt-2">Tell other engineers who you are and which technologies you can swap.</p>
+        <p className="text-muted-foreground mt-2">
+          Tell other engineers who you are and which technologies you can swap.
+        </p>
 
         <div className="mt-8 glass rounded-3xl p-6 sm:p-8 space-y-6">
           <Field label="Full name">
-            <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="Ada Lovelace" />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={inputCls}
+              placeholder="Ada Lovelace"
+            />
           </Field>
           <Field label="Headline" hint="Short tagline shown on your match card.">
-            <input value={headline} onChange={(e) => setHeadline(e.target.value)} className={inputCls} placeholder="Senior Backend Engineer · Berlin" />
+            <input
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              className={inputCls}
+              placeholder="Senior Backend Engineer · Berlin"
+            />
           </Field>
           <Field label="Bio">
-            <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} className={inputCls} placeholder="I love building distributed systems and teaching what I learn." />
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={4}
+              className={inputCls}
+              placeholder="I love building distributed systems and teaching what I learn."
+            />
           </Field>
         </div>
 
         <div className="mt-6 grid md:grid-cols-2 gap-6">
           <div className="glass rounded-3xl p-6 sm:p-8">
             <h3 className="font-semibold mb-1">Skills I know</h3>
-            <p className="text-xs text-muted-foreground mb-4">Pick technologies you can teach or pair on.</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Pick technologies you can teach or pair on.
+            </p>
             <SkillPicker selected={knows} onChange={setKnows} accent="var(--teal)" />
           </div>
           <div className="glass rounded-3xl p-6 sm:p-8">
             <h3 className="font-semibold mb-1">Skills I want to learn</h3>
-            <p className="text-xs text-muted-foreground mb-4">Pick technologies you want help with.</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Pick technologies you want help with.
+            </p>
             <SkillPicker selected={wants} onChange={setWants} accent="var(--purple)" />
           </div>
         </div>
 
         <div className="mt-8 flex items-center justify-end gap-3">
-          <button onClick={() => navigate({ to: "/dashboard" })} className="text-sm text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => navigate({ to: "/dashboard" })}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             Skip for now
           </button>
           <button
@@ -125,9 +168,18 @@ function ProfilePage() {
   );
 }
 
-const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-white/25";
+const inputCls =
+  "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-white/25";
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
